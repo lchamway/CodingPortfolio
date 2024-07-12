@@ -1,12 +1,8 @@
-# Program to make a simple 
-# login screen 
-
-
 import tkinter as tk
+from tkinter import messagebox
 
 root=tk.Tk()
 
-# setting the windows size
 root.geometry("800x600")
 
 # declaring string variable
@@ -14,6 +10,12 @@ root.geometry("800x600")
 id_var=tk.StringVar()
 passw_var=tk.StringVar()
 
+user_map = {
+	"admin":"admin",
+	"900897702":"loser",
+	"900":"winner",
+
+}
 
 # defining a function that will
 # get the name and password and 
@@ -23,20 +25,31 @@ def submit():
 	name=id_var.get()
 	password=passw_var.get()
 	
-	checkAdmin(name, password)
+	check_credentials(name, password)
 	
 	id_var.set("")
 	passw_var.set("")
 	
-def checkAdmin(user, passwrd):
-	if user == "admin" and passwrd == "admin":
-		create_window()
-	else:
-		print("Welcome Worker")
 		
-def create_window():
-	tk.Toplevel(root)
+def create_window(user_role):
+    new_window = tk.Toplevel(root)
+    new_window.geometry("400x300")
+    new_window.title("Main Window")
+    
+    if user_role == "admin":
+        admin_label = tk.Label(new_window, text="Admin", font=('calibre', 10, 'bold'))
+        admin_label.pack(pady=10)
+    else:
+        worker_label = tk.Label(new_window, text="Employee", font=('calibre', 10, 'bold'))
+        worker_label.pack(pady=10)
 	
+def check_credentials(user, passwrd):
+    if user in user_map and user_map[user] == passwrd:
+        user_role = "admin" if user == "admin" else "worker"
+        create_window(user_role)
+    else:
+        messagebox.showerror("Error", "Invalid Username or Password")
+
 # creating a label for 
 # name using widget Label
 id_label = tk.Label(root, text = 'Student ID', font=('calibre',10, 'bold'))
