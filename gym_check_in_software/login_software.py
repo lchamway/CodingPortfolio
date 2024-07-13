@@ -1,6 +1,6 @@
 import tkinter as tk
 from tkinter import messagebox
-import datetime as dt
+import datetime
 import csv
 
 root=tk.Tk()
@@ -19,8 +19,6 @@ user_map = {
 
 }
 
-
-
 # defining a function that will
 # get the name and password and 
 # print them on the screen
@@ -35,7 +33,7 @@ def submit():
 	passw_var.set("")
 	
 		
-def create_window(user_role):
+def create_window(user_role, user):
     new_window = tk.Toplevel(root)
     new_window.geometry("400x300")
     new_window.title("Main Window")
@@ -45,7 +43,7 @@ def create_window(user_role):
         admin_label.pack(pady=10)
     else:
         worker_label = tk.Label(new_window, text="Employee Portal", font=('calibre', 10, 'bold'))
-        clock_in_button = tk.Button(new_window, text="Clock-In", command = worker_clock_in)
+        clock_in_button = tk.Button(new_window, text="Clock-In", command = worker_clock_in(user))
         clock_out_button = tk.Button(new_window, text="Clock-Out")
         worker_label.pack(pady=10)
         clock_in_button.pack(pady=10)
@@ -54,12 +52,17 @@ def create_window(user_role):
 def check_credentials(user, passwrd):
     if user in user_map and user_map[user] == passwrd:
         user_role = "admin" if user == "admin" else "worker"
-        create_window(user_role)
+        create_window(user_role, user)
     else:
         messagebox.showerror("Error", "Invalid Username or Password")
 
-def worker_clock_in():
-     ...
+def worker_clock_in(user_id):
+     current_time = datetime.datetime.now()
+     with open('worker_log.csv', 'a') as file:
+          file.write(f'{user_id}, True, {current_time}, ""\n')
+          file.close()
+
+
 # creating a label for 
 # name using widget Label
 id_label = tk.Label(root, text = 'Student ID', font=('calibre',10, 'bold'))
