@@ -1,5 +1,7 @@
 import tkinter as tk
 from tkinter import messagebox
+import datetime as dt
+import csv
 
 root=tk.Tk()
 
@@ -16,6 +18,8 @@ user_map = {
 	"900":"winner",
 
 }
+
+
 
 # defining a function that will
 # get the name and password and 
@@ -40,8 +44,12 @@ def create_window(user_role):
         admin_label = tk.Label(new_window, text="Admin", font=('calibre', 10, 'bold'))
         admin_label.pack(pady=10)
     else:
-        worker_label = tk.Label(new_window, text="Employee", font=('calibre', 10, 'bold'))
+        worker_label = tk.Label(new_window, text="Employee Portal", font=('calibre', 10, 'bold'))
+        clock_in_button = tk.Button(new_window, text="Clock-In", command = worker_clock_in)
+        clock_out_button = tk.Button(new_window, text="Clock-Out")
         worker_label.pack(pady=10)
+        clock_in_button.pack(pady=10)
+        clock_out_button.pack(pady=10)
 	
 def check_credentials(user, passwrd):
     if user in user_map and user_map[user] == passwrd:
@@ -50,6 +58,8 @@ def check_credentials(user, passwrd):
     else:
         messagebox.showerror("Error", "Invalid Username or Password")
 
+def worker_clock_in():
+     ...
 # creating a label for 
 # name using widget Label
 id_label = tk.Label(root, text = 'Student ID', font=('calibre',10, 'bold'))
