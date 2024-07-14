@@ -11,6 +11,9 @@ root.geometry("800x600")
 # for storing name and password
 id_var=tk.StringVar()
 passw_var=tk.StringVar()
+new_id_var = tk.StringVar()
+new_passwrd_var = tk.StringVar()
+confirm_passwrd_var = tk.StringVar()
 
 user_map = {
 	"admin":"admin",
@@ -33,36 +36,41 @@ checkout_to_do = [
 # defining a function that will
 # get the name and password and 
 # print them on the screen
-def submit():
+def submit(frame):
 
 	name=id_var.get()
 	password=passw_var.get()
 	
-	check_credentials(name, password)
+	check_credentials(name, password,frame)
 	
 	id_var.set("")
 	passw_var.set("")
 	
-def create_window(user_role, user):
-    new_window = tk.Toplevel(root)
-    new_window.geometry("400x300")
-    new_window.title("Main Window")
+def create_window(user_role, user, frame):
+    for widget in frame.winfo_children():
+          widget.destroy()
     
     if user_role == "admin":
-        admin_label = tk.Label(new_window, text="Admin", font=('calibre', 10, 'bold'))
+        admin_label = tk.Label(frame, text="Administration Window", font=('calibre', 10, 'bold'))
+        add_employee_button = tk.Button(frame, text="Add Employee", command = lambda: add_employee(frame))
+        remove_employee_button = tk.Button(frame, text="Remove Employee")
+        time_cards = tk.Button(frame, text="Access Time Cards")
         admin_label.pack(pady=10)
+        add_employee_button.pack(pady=10)
+        remove_employee_button.pack(pady=10)
+        time_cards.pack(pady=10)
     else:
-        worker_label = tk.Label(new_window, text="Employee Portal", font=('calibre', 10, 'bold'))
-        clock_in_button = tk.Button(new_window, text="Clock-In", command = lambda: worker_clock_in(user))
-        clock_out_button = tk.Button(new_window, text="Clock-Out", command = lambda: worker_clock_out(user))
+        worker_label = tk.Label(frame, text="Employee Portal", font=('calibre', 10, 'bold'))
+        clock_in_button = tk.Button(frame, text="Clock-In", command = lambda: worker_clock_in(user))
+        clock_out_button = tk.Button(frame, text="Clock-Out", command = lambda: worker_clock_out(user))
         worker_label.pack(pady=10)
         clock_in_button.pack(pady=10)
         clock_out_button.pack(pady=10)
 	
-def check_credentials(user, passwrd):
+def check_credentials(user, passwrd,frame):
     if user in user_map and user_map[user] == passwrd:
         user_role = "admin" if user == "admin" else "worker"
-        create_window(user_role, user)
+        create_window(user_role, user,frame)
     else:
         messagebox.showerror("Error", "Invalid Username or Password")
 
@@ -104,6 +112,39 @@ def worker_out_checklist(current_time):
      dry_mop_q.pack(pady=10)
      dusting_q.pack(pady=10)
           
+def add_employee(frame):
+     for widget in frame.winfo_children():
+          widget.destroy()
+     new_label = tk.Label(frame, text = "Add New Employee", font=('calibre',10,'bold'))
+     new_id = tk.Entry(frame, textvariable= new_id_var, font=('calibre',10,'normal'))
+     new_id_label = tk.Label(frame, text = "Employee/Student ID", font=('calibre',10,'bold'))
+     new_passwrd = tk.Entry(frame, textvariable= new_passwrd_var, font=('calibre',10, 'normal'), show = '*')
+     new_passwrd_label = tk.Label(frame, text = "New Password", font=('calibre',10,'bold'))
+     confirm_passwrd = tk.Entry(frame, textvariable=confirm_passwrd_var, font=('calibre',10,'normal'), show = '*')
+     confirm_passwrd_label = tk.Label(frame, text = "Confirm Password", font=('calibre',10,'bold'))
+     submit_new_employee = tk.Button(frame, text = "Submit", command = lambda: check_and_add())
+     new_label.pack(pady=10)
+     new_id_label.pack(pady=10)
+     new_id.pack(pady=10)
+     new_passwrd_label.pack(pady=10)
+     new_passwrd.pack(pady=10)
+     confirm_passwrd_label.pack(pady=10)
+     confirm_passwrd.pack(pady=10)
+     submit_new_employee.pack(pady=10)
+
+def check_and_add():
+     global user_map
+     
+     new_id = new_id_var.get()
+     new_pass = new_passwrd_var.get()
+     confirm = confirm_passwrd_var.get()
+     if new_id not in user_map:
+          if new_pass == confirm:
+               user_map[new_id] = new_pass
+          else:
+               messagebox.showerror("Error", "Passwords do not match")
+     else:
+          messagebox.showerror("Error", "That ID is already in use")
 # creating a label for name using widget Label
 id_label = tk.Label(root, text = 'Student ID', font=('calibre',10, 'bold'))
 
@@ -117,7 +158,7 @@ passw_label = tk.Label(root, text = 'Password', font = ('calibre',10,'bold'))
 passw_entry=tk.Entry(root, textvariable = passw_var, font = ('calibre',10,'normal'), show = '*')
 
 # creating a button using the widget Button that will call the submit function 
-sub_btn=tk.Button(root,text = 'Submit', command = submit)
+sub_btn=tk.Button(root,text = 'Submit', command = lambda: submit(root))
 
 # placing the label and entry in the required position using grid method
 id_label.grid(row=0,column=0)
