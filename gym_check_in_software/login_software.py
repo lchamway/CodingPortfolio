@@ -53,7 +53,7 @@ def create_window(user_role, user, frame):
     if user_role == "admin":
         admin_label = tk.Label(frame, text="Administration Window", font=('calibre', 10, 'bold'))
         add_employee_button = tk.Button(frame, text="Add Employee", command = lambda: add_employee(frame))
-        remove_employee_button = tk.Button(frame, text="Remove Employee")
+        remove_employee_button = tk.Button(frame, text="Remove Employee", command= lambda: remove_employee(frame))
         time_cards = tk.Button(frame, text="Access Time Cards")
         admin_label.pack(pady=10)
         add_employee_button.pack(pady=10)
@@ -132,8 +132,22 @@ def add_employee(frame):
      confirm_passwrd.pack(pady=10)
      submit_new_employee.pack(pady=10)
 
+def remove_employee(frame):
+     for widget in frame.winfo_children():
+          widget.destroy()
+     remove_label = tk.Label(frame, text = "Remove Employee", font=('calibre',10,'bold'))
+     new_id = tk.Entry(frame, textvariable= new_id_var, font=('calibre',10,'normal'))
+     new_id_label = tk.Label(frame, text = "Employee/Student ID", font=('calibre',10,'bold'))
+     
+     submit_new_employee = tk.Button(frame, text = "Submit", command= lambda: check_and_remove())
+     remove_label.pack(pady=10)
+     new_id_label.pack(pady=10)
+     new_id.pack(pady=10)
+     submit_new_employee.pack(pady=10)
+
 def check_and_add():
      global user_map
+     global worker_clock_map
      
      new_id = new_id_var.get()
      new_pass = new_passwrd_var.get()
@@ -145,6 +159,21 @@ def check_and_add():
                messagebox.showerror("Error", "Passwords do not match")
      else:
           messagebox.showerror("Error", "That ID is already in use")
+     new_id_var.set("")
+     new_passwrd_var.set("")
+     confirm_passwrd_var.set("")
+
+def check_and_remove():
+     global user_map
+     global worker_clock_map
+
+     remove_id = new_id_var.get()
+
+     if remove_id in user_map:
+          del user_map[remove_id]
+     else:
+          messagebox.showerror("Error", "That ID is not in use")
+     new_id_var.set("")
 # creating a label for name using widget Label
 id_label = tk.Label(root, text = 'Student ID', font=('calibre',10, 'bold'))
 
