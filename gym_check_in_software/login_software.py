@@ -1,11 +1,20 @@
 import tkinter as tk
 from tkinter import messagebox
+from tkinter import Menu
+from tkinter import *
+from tkinter.ttk import *
 import datetime
 from csv import writer
 
 root=tk.Tk()
 
 root.geometry("800x600")
+
+root.title("University of Dallas Gym Employee Software")
+
+ud_seal = PhotoImage(file = r'C:\Users\Liam\Desktop\Coding Portfolio\CodingPortfolio\gym_check_in_software\UDallas_seal.png')
+
+root.iconphoto(False, ud_seal)
 
 # declaring string variable
 # for storing name and password
@@ -52,15 +61,33 @@ def create_window(user_role, user, frame):
     
     if user_role == "admin":
         admin_label = tk.Label(frame, text="Administration Window", font=('calibre', 10, 'bold'))
+        menubar = tk.Menu(frame, tearoff=0)
+        filemenu = tk.Menu(menubar, tearoff=0)
+        filemenu.add_command(label="Go To Page")
+        filemenu.add_command(label="Log Out", command=lambda:logout(frame))
+        filemenu.add_command(label="Save")
+        filemenu.add_separator()
+        filemenu.add_command(label="Exit", command=root.quit)
+        menubar.add_cascade(label="File", menu=filemenu)
+        frame.config(menu=filemenu)
         add_employee_button = tk.Button(frame, text="Add Employee", command = lambda: add_employee(frame))
         remove_employee_button = tk.Button(frame, text="Remove Employee", command= lambda: remove_employee(frame))
-        time_cards = tk.Button(frame, text="Access Time Cards")
+        time_cards = tk.Button(frame, text="Access Time Cards", command= lambda: time_cards_page(frame))
         admin_label.pack(pady=10)
         add_employee_button.pack(pady=10)
         remove_employee_button.pack(pady=10)
         time_cards.pack(pady=10)
     else:
         worker_label = tk.Label(frame, text="Employee Portal", font=('calibre', 10, 'bold'))
+        menubar = tk.Menu(frame, tearoff=0)
+        filemenu = tk.Menu(menubar, tearoff=0)
+        filemenu.add_command(label="Go To Page")
+        filemenu.add_command(label="Log Out", command=lambda: logout(frame))
+        filemenu.add_command(label="Save")
+        filemenu.add_separator()
+        filemenu.add_command(label="Exit", command=root.quit)
+        menubar.add_cascade(label="File", menu=filemenu)
+        frame.config(menu=filemenu)
         clock_in_button = tk.Button(frame, text="Clock-In", command = lambda: worker_clock_in(user))
         clock_out_button = tk.Button(frame, text="Clock-Out", command = lambda: worker_clock_out(user))
         worker_label.pack(pady=10)
@@ -116,6 +143,15 @@ def add_employee(frame):
      for widget in frame.winfo_children():
           widget.destroy()
      new_label = tk.Label(frame, text = "Add New Employee", font=('calibre',10,'bold'))
+     menubar = tk.Menu(frame, tearoff=0)
+     filemenu = tk.Menu(menubar, tearoff=0)
+     filemenu.add_command(label="Go To Page")
+     filemenu.add_command(label="Log Out", command=lambda:logout(frame))
+     filemenu.add_command(label="Save")
+     filemenu.add_separator()
+     filemenu.add_command(label="Exit", command=root.quit)
+     menubar.add_cascade(label="File", menu=filemenu)
+     frame.config(menu=filemenu)
      new_id = tk.Entry(frame, textvariable= new_id_var, font=('calibre',10,'normal'))
      new_id_label = tk.Label(frame, text = "Employee/Student ID", font=('calibre',10,'bold'))
      new_passwrd = tk.Entry(frame, textvariable= new_passwrd_var, font=('calibre',10, 'normal'), show = '*')
@@ -136,6 +172,15 @@ def remove_employee(frame):
      for widget in frame.winfo_children():
           widget.destroy()
      remove_label = tk.Label(frame, text = "Remove Employee", font=('calibre',10,'bold'))
+     menubar = tk.Menu(frame, tearoff=0)
+     filemenu = tk.Menu(menubar, tearoff=0)
+     filemenu.add_command(label="Go To Page")
+     filemenu.add_command(label="Log Out", command=lambda:logout(frame))
+     filemenu.add_command(label="Save")
+     filemenu.add_separator()
+     filemenu.add_command(label="Exit", command=root.quit)
+     menubar.add_cascade(label="File", menu=filemenu)
+     frame.config(menu=filemenu)
      new_id = tk.Entry(frame, textvariable= new_id_var, font=('calibre',10,'normal'))
      new_id_label = tk.Label(frame, text = "Employee/Student ID", font=('calibre',10,'bold'))
      
@@ -174,27 +219,50 @@ def check_and_remove():
      else:
           messagebox.showerror("Error", "That ID is not in use")
      new_id_var.set("")
-# creating a label for name using widget Label
-id_label = tk.Label(root, text = 'Student ID', font=('calibre',10, 'bold'))
 
-# creating a entry for input name using widget Entry
-id_entry = tk.Entry(root,textvariable = id_var, font=('calibre',10,'normal'))
+def make_login_page(frame):
+     for widget in frame.winfo_children():
+          widget.destroy()
+     # creating a label for name using widget Label
+     id_label = tk.Label(root, text = 'Student ID', font=('calibre',10, 'bold'))
 
-# creating a label for password
-passw_label = tk.Label(root, text = 'Password', font = ('calibre',10,'bold'))
+     # creating a entry for input name using widget Entry
+     id_entry = tk.Entry(root,textvariable = id_var, font=('calibre',10,'normal'))
 
-# creating a entry for password
-passw_entry=tk.Entry(root, textvariable = passw_var, font = ('calibre',10,'normal'), show = '*')
+     # creating a label for password
+     passw_label = tk.Label(root, text = 'Password', font = ('calibre',10,'bold'))
 
-# creating a button using the widget Button that will call the submit function 
-sub_btn=tk.Button(root,text = 'Submit', command = lambda: submit(root))
+     # creating a entry for password
+     passw_entry=tk.Entry(root, textvariable = passw_var, font = ('calibre',10,'normal'), show = '*')
 
-# placing the label and entry in the required position using grid method
-id_label.grid(row=0,column=0)
-id_entry.grid(row=0,column=1)
-passw_label.grid(row=1,column=0)
-passw_entry.grid(row=1,column=1)
-sub_btn.grid(row=2,column=1)
+     # creating a button using the widget Button that will call the submit function 
+     sub_btn=tk.Button(root,text = 'Submit', command = lambda: submit(root))
 
+     # placing the label and entry in the required position using grid method
+     id_label.grid(row=0,column=0)
+     id_entry.grid(row=0,column=1)
+     passw_label.grid(row=1,column=0)
+     passw_entry.grid(row=1,column=1)
+     sub_btn.grid(row=2,column=1)
+
+def logout(frame):
+     make_login_page(frame)
+
+def time_cards_page(frame):
+     for widget in frame.winfo_children():
+          widget.destroy()
+     time_card_label = tk.Label(frame, text="Time Cards", font=('calibre', 10, 'bold'))
+     menubar = tk.Menu(frame, tearoff=0)
+     filemenu = tk.Menu(menubar, tearoff=0)
+     filemenu.add_command(label="Go To Page")
+     filemenu.add_command(label="Log Out", command=lambda:logout(frame))
+     filemenu.add_command(label="Save")
+     filemenu.add_separator()
+     filemenu.add_command(label="Exit", command=root.quit)
+     menubar.add_cascade(label="File", menu=filemenu)
+     frame.config(menu=filemenu)
+     time_card_label.pack()
+
+make_login_page(root)
 # performing an infinite loop for the window to display
 root.mainloop()
