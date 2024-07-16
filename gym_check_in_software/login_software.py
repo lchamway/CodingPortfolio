@@ -60,30 +60,34 @@ def create_window(user_role, user, frame):
           widget.destroy()
     
     if user_role == "admin":
-        admin_label = tk.Label(frame, text="Administration Window", font=('calibre', 10, 'bold'))
-        menubar = tk.Menu(frame, tearoff=0)
-        filemenu = tk.Menu(menubar, tearoff=0)
-        filemenu.add_command(label="Go To Page")
-        filemenu.add_command(label="Log Out", command=lambda:logout(frame))
-        filemenu.add_command(label="Save")
-        filemenu.add_separator()
-        filemenu.add_command(label="Exit", command=root.quit)
-        menubar.add_cascade(label="File", menu=filemenu)
-        frame.config(menu=filemenu)
-        add_employee_button = tk.Button(frame, text="Add Employee", command = lambda: add_employee(frame))
-        remove_employee_button = tk.Button(frame, text="Remove Employee", command= lambda: remove_employee(frame))
-        time_cards = tk.Button(frame, text="Access Time Cards", command= lambda: time_cards_page(frame))
-        admin_label.pack(pady=10)
-        add_employee_button.pack(pady=10)
-        remove_employee_button.pack(pady=10)
-        time_cards.pack(pady=10)
+        make_admin_page(frame)
     else:
+        make_employee_page(frame, user)
+
+def make_admin_page(frame):
+     admin_label = tk.Label(frame, text="Administration Window", font=('calibre', 10, 'bold'))
+     menubar = tk.Menu(frame, tearoff=0)
+     filemenu = tk.Menu(menubar, tearoff=0)
+     filemenu.add_command(label="Log Out", command=lambda:logout(frame))
+     filemenu.add_separator()
+     filemenu.add_command(label="Exit", command=root.quit)
+     menubar.add_cascade(label="File", menu=filemenu)
+     frame.config(menu=filemenu)
+     add_employee_button = tk.Button(frame, text="Add Employee", command = lambda: add_employee(frame))
+     remove_employee_button = tk.Button(frame, text="Remove Employee", command= lambda: remove_employee(frame))
+     reset_employee_pass = tk.Button(frame, text="Reset Password", command= lambda: reset_passwords(frame))
+     time_cards = tk.Button(frame, text="Access Time Cards", command= lambda: time_cards_page(frame))
+     admin_label.pack(pady=10)
+     add_employee_button.pack(pady=10)
+     remove_employee_button.pack(pady=10)
+     reset_employee_pass.pack(pady=10)
+     time_cards.pack(pady=10)
+
+def make_employee_page(frame, user):
         worker_label = tk.Label(frame, text="Employee Portal", font=('calibre', 10, 'bold'))
         menubar = tk.Menu(frame, tearoff=0)
         filemenu = tk.Menu(menubar, tearoff=0)
-        filemenu.add_command(label="Go To Page")
         filemenu.add_command(label="Log Out", command=lambda: logout(frame))
-        filemenu.add_command(label="Save")
         filemenu.add_separator()
         filemenu.add_command(label="Exit", command=root.quit)
         menubar.add_cascade(label="File", menu=filemenu)
@@ -93,7 +97,7 @@ def create_window(user_role, user, frame):
         worker_label.pack(pady=10)
         clock_in_button.pack(pady=10)
         clock_out_button.pack(pady=10)
-	
+
 def check_credentials(user, passwrd,frame):
     if user in user_map and user_map[user] == passwrd:
         user_role = "admin" if user == "admin" else "worker"
@@ -145,9 +149,8 @@ def add_employee(frame):
      new_label = tk.Label(frame, text = "Add New Employee", font=('calibre',10,'bold'))
      menubar = tk.Menu(frame, tearoff=0)
      filemenu = tk.Menu(menubar, tearoff=0)
-     filemenu.add_command(label="Go To Page")
+     filemenu.add_command(label="Return to Admin Home", command= lambda: return_to_admin(frame))
      filemenu.add_command(label="Log Out", command=lambda:logout(frame))
-     filemenu.add_command(label="Save")
      filemenu.add_separator()
      filemenu.add_command(label="Exit", command=root.quit)
      menubar.add_cascade(label="File", menu=filemenu)
@@ -174,9 +177,8 @@ def remove_employee(frame):
      remove_label = tk.Label(frame, text = "Remove Employee", font=('calibre',10,'bold'))
      menubar = tk.Menu(frame, tearoff=0)
      filemenu = tk.Menu(menubar, tearoff=0)
-     filemenu.add_command(label="Go To Page")
+     filemenu.add_command(label="Return to Admin Home", command= lambda: return_to_admin(frame))
      filemenu.add_command(label="Log Out", command=lambda:logout(frame))
-     filemenu.add_command(label="Save")
      filemenu.add_separator()
      filemenu.add_command(label="Exit", command=root.quit)
      menubar.add_cascade(label="File", menu=filemenu)
@@ -254,14 +256,63 @@ def time_cards_page(frame):
      time_card_label = tk.Label(frame, text="Time Cards", font=('calibre', 10, 'bold'))
      menubar = tk.Menu(frame, tearoff=0)
      filemenu = tk.Menu(menubar, tearoff=0)
-     filemenu.add_command(label="Go To Page")
+     filemenu.add_command(label="Return to Admin Home", command= lambda: return_to_admin(frame))
      filemenu.add_command(label="Log Out", command=lambda:logout(frame))
-     filemenu.add_command(label="Save")
      filemenu.add_separator()
      filemenu.add_command(label="Exit", command=root.quit)
      menubar.add_cascade(label="File", menu=filemenu)
      frame.config(menu=filemenu)
      time_card_label.pack()
+
+def return_to_admin(frame):
+     for widget in frame.winfo_children():
+          widget.destroy()
+     make_admin_page(frame)
+     
+def reset_passwords(frame):
+     for widget in frame.winfo_children():
+          widget.destroy()
+     new_label = tk.Label(frame, text = "Reset Employee Password", font=('calibre',10,'bold'))
+     menubar = tk.Menu(frame, tearoff=0)
+     filemenu = tk.Menu(menubar, tearoff=0)
+     filemenu.add_command(label="Return to Admin Home", command= lambda: return_to_admin(frame))
+     filemenu.add_command(label="Log Out", command=lambda:logout(frame))
+     filemenu.add_separator()
+     filemenu.add_command(label="Exit", command=root.quit)
+     menubar.add_cascade(label="File", menu=filemenu)
+     frame.config(menu=filemenu)
+     new_id = tk.Entry(frame, textvariable= id_var, font=('calibre',10,'normal'))
+     new_id_label = tk.Label(frame, text = "Employee/Student ID", font=('calibre',10,'bold'))
+     new_passwrd = tk.Entry(frame, textvariable= new_passwrd_var, font=('calibre',10, 'normal'), show = '*')
+     new_passwrd_label = tk.Label(frame, text = "New Password", font=('calibre',10,'bold'))
+     confirm_passwrd = tk.Entry(frame, textvariable=confirm_passwrd_var, font=('calibre',10,'normal'), show = '*')
+     confirm_passwrd_label = tk.Label(frame, text = "Confirm Password", font=('calibre',10,'bold'))
+     submit_new_employee = tk.Button(frame, text = "Submit", command = lambda: check_and_reset())
+     new_label.pack(pady=10)
+     new_id_label.pack(pady=10)
+     new_id.pack(pady=10)
+     new_passwrd_label.pack(pady=10)
+     new_passwrd.pack(pady=10)
+     confirm_passwrd_label.pack(pady=10)
+     confirm_passwrd.pack(pady=10)
+     submit_new_employee.pack(pady=10)
+     
+def check_and_reset():
+     global user_map
+     new_passwrd = new_passwrd_var.get()
+     confirmed_passwrd = confirm_passwrd_var.get()
+     exiting_id = id_var.get()
+
+     if new_passwrd == confirmed_passwrd:
+          if exiting_id in user_map:
+               user_map[exiting_id] = new_passwrd
+     else:
+          tk.messagebox.showerror("Error", "Passwords do not match")
+     
+     new_passwrd_var.set("")
+     confirm_passwrd_var.set("")
+     id_var.set("")
+
 
 make_login_page(root)
 # performing an infinite loop for the window to display
