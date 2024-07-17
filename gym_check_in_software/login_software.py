@@ -41,6 +41,12 @@ checkout_to_do = [
      "At the end of your shift did you dust the treadmills and ellipticals?",
      "At the end of your shift are all the weight plates back on their racks?",
      "At the end of your shift is the front desk area neat and clean?",
+     "Morning shift: did you take the dumbbells off the racks and clean the racks?",
+     "Mid-day shift: did you take the kettlebells off the racks and clean the racks?",
+     "Afternoon shift: did you clean the treads of the treadmills?",
+     "Night shift: did you dust the ellipticals, treadmills, and bicycles, and wipe and vacuum their foot pads?",
+     "Late afternoon shift: did you wipe down all of the weight machines?",
+     "Evening shift: did you mop the floor?",
      ]
 # defining a function that will
 # get the name and password and 
@@ -93,7 +99,7 @@ def make_employee_page(frame, user):
         menubar.add_cascade(label="File", menu=filemenu)
         frame.config(menu=filemenu)
         clock_in_button = tk.Button(frame, text="Clock-In", command = lambda: worker_clock_in(user))
-        clock_out_button = tk.Button(frame, text="Clock-Out", command = lambda: worker_clock_out(user))
+        clock_out_button = tk.Button(frame, text="Clock-Out", command = lambda: worker_clock_out(frame, user))
         worker_label.pack(pady=10)
         clock_in_button.pack(pady=10)
         clock_out_button.pack(pady=10)
@@ -117,7 +123,7 @@ def worker_clock_in(user_id):
      else:
           messagebox.showerror("Error", "You are already clocked in")
 
-def worker_clock_out(user_id):
+def worker_clock_out(frame, user_id):
      if worker_clock_status[user_id]:
          current_time = datetime.datetime.now()
          info_list = [user_id, False, None, datetime.datetime.now()]
@@ -126,18 +132,17 @@ def worker_clock_out(user_id):
              writer_object.writerow(info_list)
              file.close()
          worker_clock_status[user_id] = False
-         worker_out_checklist(current_time)
+         worker_out_checklist(frame, current_time)
      else:
           messagebox.showerror("Error", "You are already clocked out")
 
-def worker_out_checklist(current_time):
-     check_out_window = tk.Toplevel(root)
-     check_out_window.geometry("400x300")
-     check_out_window.title("Check Out Checklist")
+def worker_out_checklist(frame, current_time):
+     for widget in frame.winfo_children():
+          widget.destroy()
 
-     check_out_label = tk.Label(check_out_window, text="Check Out Checklist", font=('calibre', 10, 'bold'))
-     dry_mop_q = tk.Label(check_out_window, text="At the beginning of your shift did you dry-mop the entire floor?", font=('calibre', 10, 'bold'))
-     dusting_q = tk.Label(check_out_window, text="At the end of your shift did you dust the treadmills and ellipticals?", font=('calibre',10,'bold'))
+     check_out_label = tk.Label(frame, text="Check Out Checklist", font=('calibre', 10, 'bold'))
+     dry_mop_q = tk.Label(frame, text="At the beginning of your shift did you dry-mop the entire floor?", font=('calibre', 10, 'bold'))
+     dusting_q = tk.Label(frame, text="At the end of your shift did you dust the treadmills and ellipticals?", font=('calibre',10,'bold'))
 
      check_out_label.pack(pady=10)
      dry_mop_q.pack(pady=10)
