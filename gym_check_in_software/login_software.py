@@ -5,6 +5,8 @@ from tkinter import *
 from tkinter.ttk import *
 import datetime
 from csv import writer
+import requests
+from API_test import *
 
 root=tk.Tk()
 
@@ -13,6 +15,9 @@ root.geometry("800x600")
 root.title("University of Dallas Gym Employee Software")
 
 ud_seal = PhotoImage(file = r'C:\Users\Liam\Desktop\Coding Portfolio\CodingPortfolio\gym_check_in_software\UDallas_seal.png')
+
+employee_api = 'https://api.restpoint.io/api/employee?'
+header = 'x-endpoint-key=133bec7420fc43f38dc315e44a51264f'
 
 root.iconphoto(False, ud_seal)
 
@@ -23,13 +28,6 @@ passw_var=tk.StringVar()
 new_id_var = tk.StringVar()
 new_passwrd_var = tk.StringVar()
 confirm_passwrd_var = tk.StringVar()
-
-user_map = {
-	"admin":"admin",
-	"900897702":"loser",
-	"900":"winner",
-
-}
 
 worker_clock_status = {
     "900897702": False,
@@ -90,6 +88,8 @@ def make_admin_page(frame):
      time_cards.pack(pady=10)
 
 def make_employee_page(frame, user):
+        employee = get_employee_by_id(user)
+        employee_name = employee['name']
         worker_label = tk.Label(frame, text="Employee Portal", font=('calibre', 10, 'bold'))
         menubar = tk.Menu(frame, tearoff=0)
         filemenu = tk.Menu(menubar, tearoff=0)
@@ -98,18 +98,27 @@ def make_employee_page(frame, user):
         filemenu.add_command(label="Exit", command=root.quit)
         menubar.add_cascade(label="File", menu=filemenu)
         frame.config(menu=filemenu)
+        welcome_label = tk.Label(frame, text=f"Welcome to the gym {employee_name}!")
         clock_in_button = tk.Button(frame, text="Clock-In", command = lambda: worker_clock_in(user))
         clock_out_button = tk.Button(frame, text="Clock-Out", command = lambda: worker_clock_out(frame, user))
         worker_label.pack(pady=10)
+        welcome_label.pack(pady=10)
         clock_in_button.pack(pady=10)
         clock_out_button.pack(pady=10)
 
 def check_credentials(user, passwrd,frame):
-    if user in user_map and user_map[user] == passwrd:
-        user_role = "admin" if user == "admin" else "worker"
-        create_window(user_role, user,frame)
-    else:
-        messagebox.showerror("Error", "Invalid Username or Password")
+     employees = get_employees()
+     for emp in employees:
+          if emp['id'] == user and emp['password'] == passwrd:
+               if emp['role'] == 'admin':
+                    create_window('admin', emp, frame)
+                    return
+               else:
+                    create_window('worker', emp['id'], frame)
+                    return
+          else:
+               continue
+     messagebox.showerror("Error", "Invalid Username or Password")
 
 def worker_clock_in(user_id):
      if not worker_clock_status[user_id]:
@@ -198,31 +207,38 @@ def remove_employee(frame):
      submit_new_employee.pack(pady=10)
 
 def check_and_add():
-     global user_map
-     global worker_clock_map
-     
+     employees = get_employees() 
      new_id = new_id_var.get()
      new_pass = new_passwrd_var.get()
      confirm = confirm_passwrd_var.get()
-     if new_id not in user_map:
-          if new_pass == confirm:
-               user_map[new_id] = new_pass
+
+     for emp in employees:
+          if emp['id'] == new_id:
+               messagebox.showerror("Error", "That ID is already in use")
           else:
-               messagebox.showerror("Error", "Passwords do not match")
-     else:
-          messagebox.showerror("Error", "That ID is already in use")
+               if new_pass == confirm:
+                    enter_new_employee(new_id, "employee_name", new_pass)
+               else:
+                    messagebox.showerror("Error", "Passwords do not match")
+
+     # if new_id not in user_map:
+     #      if new_pass == confirm:
+     #           user_map[new_id] = new_pass
+     #      else:
+     #           messagebox.showerror("Error", "Passwords do not match")
+     # else:
+     #      messagebox.showerror("Error", "That ID is already in use")
      new_id_var.set("")
      new_passwrd_var.set("")
      confirm_passwrd_var.set("")
 
 def check_and_remove():
-     global user_map
-     global worker_clock_map
-
+     employees = get_employees()
      remove_id = new_id_var.get()
 
-     if remove_id in user_map:
-          del user_map[remove_id]
+     for emp in employees:
+          if emp['id'] == remove_id:
+               delete_employee(remove_id)
      else:
           messagebox.showerror("Error", "That ID is not in use")
      new_id_var.set("")
@@ -307,10 +323,12 @@ def check_and_reset():
      new_passwrd = new_passwrd_var.get()
      confirmed_passwrd = confirm_passwrd_var.get()
      exiting_id = id_var.get()
+     employees = get_employees()
 
      if new_passwrd == confirmed_passwrd:
-          if exiting_id in user_map:
-               user_map[exiting_id] = new_passwrd
+          for emp in employees:
+               if emp['id'] == exiting_id:
+                    update_employee_password(emp['id'], new_passwrd)
      else:
           tk.messagebox.showerror("Error", "Passwords do not match")
      
