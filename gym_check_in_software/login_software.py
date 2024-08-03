@@ -3,7 +3,8 @@ from tkinter import messagebox
 from tkinter import Menu
 from tkinter import *
 from tkinter.ttk import *
-import datetime
+from datetime import datetime
+from functools import partial
 from csv import writer
 import requests
 from API_test import *
@@ -15,6 +16,9 @@ root.geometry("800x600")
 root.title("University of Dallas Gym Employee Software")
 
 ud_seal = PhotoImage(file = r'C:\Users\Liam\Desktop\Coding Portfolio\CodingPortfolio\gym_check_in_software\UDallas_seal.png')
+
+listbox_emp = None
+listbox_dates = None
 
 employee_api = 'https://api.restpoint.io/api/employee?'
 header = 'x-endpoint-key=133bec7420fc43f38dc315e44a51264f'
@@ -28,11 +32,7 @@ passw_var=tk.StringVar()
 new_id_var = tk.StringVar()
 new_passwrd_var = tk.StringVar()
 confirm_passwrd_var = tk.StringVar()
-
-worker_clock_status = {
-    "900897702": False,
-    "900": False,
-}
+new_name_var = tk.StringVar()
 
 checkout_to_do = [
      "At the beginning of your shift did you dry-mop the entire floor?", 
@@ -121,29 +121,43 @@ def check_credentials(user, passwrd,frame):
      messagebox.showerror("Error", "Invalid Username or Password")
 
 def worker_clock_in(user_id):
-     if not worker_clock_status[user_id]:
-         current_time = datetime.datetime.now()
-         info_list = [user_id, True, datetime.datetime.now(), None]
-         with open(r'C:\Users\Liam\Desktop\Coding Portfolio\CodingPortfolio\gym_check_in_software\worker_log.csv', 'a', newline ='') as file:
-             writer_object = writer(file)
-             writer_object.writerow(info_list)
-             file.close()
-         worker_clock_status[user_id] = True
-     else:
-          messagebox.showerror("Error", "You are already clocked in")
+     employees = get_employees()
+     for emp in employees:
+          if emp['id'] == user_id:
+               if emp['log_status'] == False:
+                    update_employee_log(emp['id'], True)
+                    dates = emp['dates_logged']
+                    log_date = datetime.now().replace(microsecond=0)
+                    log_date_str = log_date.isoformat()
+                    dates.append(log_date_str)
+                    if '' in dates:
+                         dates.remove('')
+                    update_employee_dates_logged(emp['id'], dates)
+                    print(emp)
+                    messagebox.showinfo("Success", "You have clocked in!")
+               else:
+                    messagebox.showerror("Error", "You are already clocked in!")
 
 def worker_clock_out(frame, user_id):
-     if worker_clock_status[user_id]:
-         current_time = datetime.datetime.now()
-         info_list = [user_id, False, None, datetime.datetime.now()]
-         with open(r'C:\Users\Liam\Desktop\Coding Portfolio\CodingPortfolio\gym_check_in_software\worker_log.csv', 'a', newline='') as file:
-             writer_object = writer(file)
-             writer_object.writerow(info_list)
-             file.close()
-         worker_clock_status[user_id] = False
-         worker_out_checklist(frame, current_time)
-     else:
-          messagebox.showerror("Error", "You are already clocked out")
+     employees = get_employees()
+     for emp in employees:
+          if emp['id'] == user_id:
+               if emp['log_status'] == True:
+                    update_employee_log(emp['id'], False)
+                    date_list = emp['dates_logged']
+                    latest_date_str = date_list[len(date_list)-1]
+                    latest_date = datetime.strptime(latest_date_str, "%Y-%m-%dT%H:%M:%S")
+                    clock_out_date = datetime.now().replace(microsecond=0)
+                    difference = clock_out_date - latest_date
+                    difference_in_hours = difference.total_seconds() / 3600.0
+                    hours_list = emp['hours_logged']
+                    hours_list.append(difference_in_hours)
+                    update_employee_hours(emp['id'], hours_list)
+                    print(hours_list)
+                    messagebox.showinfo("Success", "You have clocked out!")
+                    #break
+               else:
+                    messagebox.showerror("Error", "You must clock in first!")
 
 def worker_out_checklist(frame, current_time):
      for widget in frame.winfo_children():
@@ -175,10 +189,14 @@ def add_employee(frame):
      new_passwrd_label = tk.Label(frame, text = "New Password", font=('calibre',10,'bold'))
      confirm_passwrd = tk.Entry(frame, textvariable=confirm_passwrd_var, font=('calibre',10,'normal'), show = '*')
      confirm_passwrd_label = tk.Label(frame, text = "Confirm Password", font=('calibre',10,'bold'))
+     new_name = tk.Entry(frame, textvariable=new_name_var, font=('calibre',10))
+     new_name_label = tk.Label(frame, text = "Employee/Student Name", font=('calbrie',10,'bold'))
      submit_new_employee = tk.Button(frame, text = "Submit", command = lambda: check_and_add())
      new_label.pack(pady=10)
      new_id_label.pack(pady=10)
      new_id.pack(pady=10)
+     new_name_label.pack(pady=10)
+     new_name.pack(pady=10)
      new_passwrd_label.pack(pady=10)
      new_passwrd.pack(pady=10)
      confirm_passwrd_label.pack(pady=10)
@@ -211,23 +229,16 @@ def check_and_add():
      new_id = new_id_var.get()
      new_pass = new_passwrd_var.get()
      confirm = confirm_passwrd_var.get()
+     new_name = new_name_var.get()
 
      for emp in employees:
           if emp['id'] == new_id:
                messagebox.showerror("Error", "That ID is already in use")
           else:
                if new_pass == confirm:
-                    enter_new_employee(new_id, "employee_name", new_pass)
+                    enter_new_employee(new_id, new_name, new_pass)
                else:
                     messagebox.showerror("Error", "Passwords do not match")
-
-     # if new_id not in user_map:
-     #      if new_pass == confirm:
-     #           user_map[new_id] = new_pass
-     #      else:
-     #           messagebox.showerror("Error", "Passwords do not match")
-     # else:
-     #      messagebox.showerror("Error", "That ID is already in use")
      new_id_var.set("")
      new_passwrd_var.set("")
      confirm_passwrd_var.set("")
@@ -272,6 +283,8 @@ def logout(frame):
      make_login_page(frame)
 
 def time_cards_page(frame):
+     global listbox_emp
+     employees = get_employees()
      for widget in frame.winfo_children():
           widget.destroy()
      time_card_label = tk.Label(frame, text="Time Cards", font=('calibre', 10, 'bold'))
@@ -284,6 +297,16 @@ def time_cards_page(frame):
      menubar.add_cascade(label="File", menu=filemenu)
      frame.config(menu=filemenu)
      time_card_label.pack()
+     scrollbar = tk.Scrollbar(frame, orient=tk.VERTICAL)
+     listbox_emp = tk.Listbox(frame, selectmode=tk.SINGLE, yscrollcommand=scrollbar.set)
+     scrollbar.config(command=listbox_emp.yview)
+     scrollbar.pack(side=tk.RIGHT, fill=tk.Y)
+     listbox_emp.pack(side=tk.LEFT, fill=tk.BOTH, expand=True)
+
+     for emp in employees:
+          listbox_emp.insert(tk.END, emp['name'])
+     
+     listbox_emp.bind('<Double-Button-1>', access_employee_timecard)
 
 def return_to_admin(frame):
      for widget in frame.winfo_children():
@@ -336,6 +359,45 @@ def check_and_reset():
      confirm_passwrd_var.set("")
      id_var.set("")
 
+def access_employee_timecard(event):
+     global listbox_emp
+     global listbox_dates
+     employees = get_employees()
+     selected_employee_index = listbox_emp.curselection()
+     selected_employee = listbox_emp.get(selected_employee_index)
+
+     for emp in employees:
+          if emp['name'] == selected_employee:
+               employee_dates = emp['dates_logged']
+     employees = get_employees()
+     top = Toplevel(root)
+     top.geometry("400x300")
+     top.iconphoto(False, ud_seal)
+     top.title("Employee Timecard")
+     label = tk.Label(top, text=f"{selected_employee}'s Clock-in Sheet")
+     label.pack(pady=20)
+     scrollbar = tk.Scrollbar(top, orient=tk.VERTICAL)
+     listbox_dates = tk.Listbox(top, selectmode=tk.SINGLE, yscrollcommand=scrollbar.set)
+     scrollbar.config(command=listbox_dates.yview)
+     scrollbar.pack(side=tk.RIGHT, fill=tk.Y)
+     listbox_dates.pack(side=tk.LEFT, fill=tk.BOTH, expand=True)
+
+     for date in employee_dates:
+          listbox_dates.insert(tk.END, date)
+     
+     listbox_dates.bind('<Double-Button-1>', partial(access_employee_date, listbox=listbox_dates, employee=selected_employee))
+
+def access_employee_date(event, listbox, employee):
+     employees = get_employees()
+     selected_date_index = listbox.curselection()
+     if selected_date_index:
+        selected_date = listbox.get(selected_date_index)
+        for emp in employees:
+          if emp['name'] == employee:
+               hours = emp['hours_logged']
+               index = selected_date_index[0]
+               hours_on_date = hours[index]
+        print(f"Employee: {employee}, Selected Date: {selected_date}, Hours ON Date: {hours_on_date}")
 
 make_login_page(root)
 # performing an infinite loop for the window to display

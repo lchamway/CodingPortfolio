@@ -137,11 +137,85 @@ def update_employee_role(employee_id, new_value):
         print(f'Failed to update resource. Status code: {response.status_code}')
     print(response.text)
 
+def update_employee_log(employee_id, new_value):
+    url = employee_api + '/' + employee_id + '?' + header
+    headers = {
+    'headerKey': header,
+    'Content-Type': 'application/json'
+    }
+
+    old_data = requests.get(url)
+    user = old_data.json()
+    data = {
+        "id": user['id'],
+        "name": user['name'],
+        "log_status": new_value,
+        "password": user['password'],
+        "role": user['role'],
+        "dates_logged": user['dates_logged'],
+        "hours_logged": user['hours_logged']
+    }
+    response = requests.patch(url, headers=headers, json=data)
+
+    if response.status_code in [200, 204]:
+        print('Resource updated successfully')
+    else:
+        print(f'Failed to update resource. Status code: {response.status_code}')
+
+def update_employee_dates_logged(employee_id, new_value):
+    url = employee_api + '/' + employee_id + '?' + header
+    headers = {
+    'headerKey': header,
+    'Content-Type': 'application/json'
+    }
+
+    old_data = requests.get(url)
+    user = old_data.json()
+    data = {
+        "id": user['id'],
+        "name": user['name'],
+        "log_status": user['log_status'],
+        "password": user['password'],
+        "role": user['role'],
+        "dates_logged": new_value,
+        "hours_logged": user['hours_logged']
+    }
+    response = requests.patch(url, headers=headers, json=data)
+
+    if response.status_code in [200, 204]:
+        print('Resource updated successfully')
+    else:
+        print(f'Failed to update resource. Status code: {response.status_code}')
+
+def update_employee_hours(employee_id, new_value):
+    url = employee_api + '/' + employee_id + '?' + header
+    headers = {
+    'headerKey': header,
+    'Content-Type': 'application/json'
+    }
+
+    old_data = requests.get(url)
+    user = old_data.json()
+    data = {
+        "id": user['id'],
+        "name": user['name'],
+        "log_status": user['log_status'],
+        "password": user['password'],
+        "role": user['role'],
+        "dates_logged": user['dates_logged'],
+        "hours_logged": new_value
+    }
+    response = requests.patch(url, headers=headers, json=data)
+
+    if response.status_code in [200, 204]:
+        print('Resource updated successfully')
+    else:
+        print(f'Failed to update resource. Status code: {response.status_code}')
 # get_employee_by_id('90089770')
 # enter_new_employee("1234", "Filler", "winner")
 # enter_new_employee("admin", "Liam Hamway", "admin")
 # delete_employee('admin')
 # delete_employee('90089770')
-# print(get_employees())
+print(get_employees())
 # update_employee_password("90089770", "admin")
 # update_employee_role("90089770", "admin")
