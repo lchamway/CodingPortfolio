@@ -127,13 +127,12 @@ def worker_clock_in(user_id):
                if emp['log_status'] == False:
                     update_employee_log(emp['id'], True)
                     dates = emp['dates_logged']
+                    loaded_dates = json.loads(dates)
                     log_date = datetime.now().replace(microsecond=0)
                     log_date_str = log_date.isoformat()
-                    dates.append(log_date_str)
-                    if '' in dates:
-                         dates.remove('')
-                    update_employee_dates_logged(emp['id'], dates)
-                    print(emp)
+                    loaded_dates[log_date_str] = -1
+                    push_dates = json.dumps(loaded_dates)
+                    update_employee_dates_logged(emp['id'], push_dates)
                     messagebox.showinfo("Success", "You have clocked in!")
                else:
                     messagebox.showerror("Error", "You are already clocked in!")
@@ -145,17 +144,17 @@ def worker_clock_out(frame, user_id):
                if emp['log_status'] == True:
                     update_employee_log(emp['id'], False)
                     date_list = emp['dates_logged']
-                    latest_date_str = date_list[len(date_list)-1]
-                    latest_date = datetime.strptime(latest_date_str, "%Y-%m-%dT%H:%M:%S")
+                    date_accessed = json.loads(date_list)
+                    latest_date_str = date_accessed.popitem()
+                    latest_date = latest_date_str[0]
+                    latest_date_formatted = datetime.strptime(latest_date, "%Y-%m-%dT%H:%M:%S")
                     clock_out_date = datetime.now().replace(microsecond=0)
-                    difference = clock_out_date - latest_date
-                    difference_in_hours = difference.total_seconds() / 3600.0
-                    hours_list = emp['hours_logged']
-                    hours_list.append(difference_in_hours)
-                    update_employee_hours(emp['id'], hours_list)
-                    print(hours_list)
+                    difference = clock_out_date - latest_date_formatted
+                    difference_in_hours = "{:.2f}".format(difference.total_seconds() / 3600.0)
+                    date_accessed[latest_date] = difference_in_hours
+                    push_dates = json.dumps(date_accessed)
+                    update_employee_dates_logged(emp['id'], push_dates)
                     messagebox.showinfo("Success", "You have clocked out!")
-                    #break
                else:
                     messagebox.showerror("Error", "You must clock in first!")
 
@@ -369,6 +368,7 @@ def access_employee_timecard(event):
      for emp in employees:
           if emp['name'] == selected_employee:
                employee_dates = emp['dates_logged']
+               employee_logged_dates = json.loads(employee_dates)
      employees = get_employees()
      top = Toplevel(root)
      top.geometry("400x300")
@@ -382,10 +382,11 @@ def access_employee_timecard(event):
      scrollbar.pack(side=tk.RIGHT, fill=tk.Y)
      listbox_dates.pack(side=tk.LEFT, fill=tk.BOTH, expand=True)
 
-     for date in employee_dates:
+     for date in employee_logged_dates:
           listbox_dates.insert(tk.END, date)
      
      listbox_dates.bind('<Double-Button-1>', partial(access_employee_date, listbox=listbox_dates, employee=selected_employee))
+     listbox_dates.bind('<BackSpace>', partial(delete_employee_date, listbox = listbox_dates, employee=selected_employee))
 
 def access_employee_date(event, listbox, employee):
      employees = get_employees()
@@ -394,10 +395,24 @@ def access_employee_date(event, listbox, employee):
         selected_date = listbox.get(selected_date_index)
         for emp in employees:
           if emp['name'] == employee:
-               hours = emp['hours_logged']
-               index = selected_date_index[0]
-               hours_on_date = hours[index]
-        print(f"Employee: {employee}, Selected Date: {selected_date}, Hours ON Date: {hours_on_date}")
+               date = emp['dates_logged']
+               date_map = json.loads(date)
+               hours = date_map[selected_date]
+        messagebox.showinfo("Timecard Information", f"Employee: {employee}\nDate: {selected_date}\nHours on date: {hours}")
+
+def delete_employee_date(event, listbox, employee):
+     employees = get_employees()
+     selected_date_index = listbox.curselection()
+     if selected_date_index:
+          selected_date = listbox.get(selected_date_index)
+          for emp in employees:
+               if emp['name'] == employee:
+                    date = emp['dates_logged']
+                    date_map = json.loads(date)
+                    del date_map[selected_date]
+                    updated_dates = json.dumps(date_map)
+                    update_employee_dates_logged(emp['id'], updated_dates)
+          messagebox.showinfo("Successful Removal", "Work Date and Hours Deleted")
 
 make_login_page(root)
 # performing an infinite loop for the window to display

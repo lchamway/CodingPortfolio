@@ -2,7 +2,7 @@ import requests
 import json
 
 employee_api = 'https://api.restpoint.io/api/employee'
-header = 'x-endpoint-key=23c36d0d391343d0b9449f1c2127eeac'
+header = 'x-endpoint-key=c8d271ed7f7544df9b1912a001cfc8b9'
 
 url = employee_api + '?' + header
 
@@ -32,8 +32,7 @@ def enter_new_employee(employee_id, employee_name, employee_pass):
         'log_status': False,
         'password': employee_pass,
         'role': "worker",
-        'dates_logged': [],
-        'hours_logged': []
+        'dates_logged': "{}"
     }
     headers ={
           'headerKey': header,
@@ -56,8 +55,7 @@ def enter_new_admin(employee_id, employee_name, employee_pass):
         'log_status': False,
         'password': employee_pass,
         'role': "admin",
-        'dates_logged': [],
-        'hours_logged': []
+        'dates_logged': "{}"
     }
     headers ={
           'headerKey': header,
@@ -101,8 +99,7 @@ def update_employee_password(employee_id, new_value):
         "log_status": user['log_status'],
         "password": new_value,
         "role": user['role'],
-        "dates_logged": user['dates_logged'],
-        "hours_logged": user['hours_logged']
+        "dates_logged": user['dates_logged']
     }
     response = requests.patch(url, headers=headers, json=data)
 
@@ -126,8 +123,7 @@ def update_employee_role(employee_id, new_value):
         "log_status": user['log_status'],
         "password": user['password'],
         "role": new_value,
-        "dates_logged": user['dates_logged'],
-        "hours_logged": user['hours_logged']
+        "dates_logged": user['dates_logged']
     }
     response = requests.patch(url, headers=headers, json=data)
 
@@ -152,8 +148,7 @@ def update_employee_log(employee_id, new_value):
         "log_status": new_value,
         "password": user['password'],
         "role": user['role'],
-        "dates_logged": user['dates_logged'],
-        "hours_logged": user['hours_logged']
+        "dates_logged": user['dates_logged']
     }
     response = requests.patch(url, headers=headers, json=data)
 
@@ -177,8 +172,7 @@ def update_employee_dates_logged(employee_id, new_value):
         "log_status": user['log_status'],
         "password": user['password'],
         "role": user['role'],
-        "dates_logged": new_value,
-        "hours_logged": user['hours_logged']
+        "dates_logged": new_value
     }
     response = requests.patch(url, headers=headers, json=data)
 
@@ -214,8 +208,10 @@ def update_employee_hours(employee_id, new_value):
 # get_employee_by_id('90089770')
 # enter_new_employee("1234", "Filler", "winner")
 # enter_new_employee("admin", "Liam Hamway", "admin")
+# enter_new_admin("admin", "Liam Hamway", "admin")
 # delete_employee('admin')
 # delete_employee('90089770')
+# delete_employee('1')
 print(get_employees())
 # update_employee_password("90089770", "admin")
 # update_employee_role("90089770", "admin")
