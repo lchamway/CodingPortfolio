@@ -5,17 +5,17 @@ from tkinter import *
 from tkinter.ttk import *
 from datetime import datetime
 from functools import partial
-from csv import writer
 import requests
 from API_test import *
+
 
 root=tk.Tk()
 
 root.geometry("800x600")
 
 root.title("University of Dallas Gym Employee Software")
-
-ud_seal = PhotoImage(file = r'C:\Users\Liam\Desktop\Coding Portfolio\CodingPortfolio\gym_check_in_software\UDallas_seal.png')
+# ud_image = Image.open("/UDallas_seal.png")
+ud_seal = PhotoImage(file = r'CodingPortfolio\gym_check_in_software\UDallas_seal.png')
 
 listbox_emp = None
 listbox_dates = None

@@ -12,8 +12,8 @@ def get_employees():
         data = response.json()
         employees = data.get('data', [])
         return employees
-    else:
-        print('Error: ' + str(response.status_code))
+    # else:
+    #     print('Error: ' + str(response.status_code))
 
 def get_employee_by_id(employee_id):
     url = employee_api + '/' + employee_id + '?' + header
@@ -21,8 +21,8 @@ def get_employee_by_id(employee_id):
     if response.status_code == 200:
         data = response.json()
         return data
-    else:
-        print('Error: ' + str(response.status_code))
+    # else:
+    #     print('Error: ' + str(response.status_code))
 
 def enter_new_employee(employee_id, employee_name, employee_pass):
     url = employee_api + '?' + header
@@ -44,8 +44,8 @@ def enter_new_employee(employee_id, employee_name, employee_pass):
     
     if response.status_code == 200:
         return True
-    else:
-        print('Error:', response.status_code, response.text)
+    # else:
+    #     print('Error:', response.status_code, response.text)
 
 def enter_new_admin(employee_id, employee_name, employee_pass):
     url = employee_api + '?' + header
@@ -65,10 +65,10 @@ def enter_new_admin(employee_id, employee_name, employee_pass):
 
     response = requests.post(url, headers=headers, json=data)
     
-    if response.status_code == 200:
-        print('Employee added successfully')
-    else:
-        print('Error:', response.status_code, response.text)
+    # if response.status_code == 200:
+    #     print('Employee added successfully')
+    # else:
+    #     print('Error:', response.status_code, response.text)
  
 def delete_employee(employee_id):
     url = employee_api + '/' + employee_id + '?' + header
@@ -79,10 +79,10 @@ def delete_employee(employee_id):
     }
 
     response = requests.delete(url, headers=headers)
-    if response.status_code == 200:
-        print('Employee deleted successfully')
-    else:
-        print('Error:', response.status_code, response.text)     
+    # if response.status_code == 200:
+    #     print('Employee deleted successfully')
+    # else:
+    #     print('Error:', response.status_code, response.text)     
 
 def update_employee_password(employee_id, new_value):
     url = employee_api + '/' + employee_id + '?' + header
@@ -103,10 +103,10 @@ def update_employee_password(employee_id, new_value):
     }
     response = requests.patch(url, headers=headers, json=data)
 
-    if response.status_code in [200, 204]:
-        print('Resource updated successfully')
-    else:
-        print(f'Failed to update resource. Status code: {response.status_code}')
+    # if response.status_code in [200, 204]:
+    #     print('Resource updated successfully')
+    # else:
+    #     print(f'Failed to update resource. Status code: {response.status_code}')
 
 def update_employee_role(employee_id, new_value):
     url = employee_api + '/' + employee_id + '?' + header
@@ -127,11 +127,11 @@ def update_employee_role(employee_id, new_value):
     }
     response = requests.patch(url, headers=headers, json=data)
 
-    if response.status_code in [200, 204]:
-        print('Resource updated successfully')
-    else:
-        print(f'Failed to update resource. Status code: {response.status_code}')
-    print(response.text)
+    # if response.status_code in [200, 204]:
+    #     print('Resource updated successfully')
+    # else:
+    #     print(f'Failed to update resource. Status code: {response.status_code}')
+    # print(response.text)
 
 def update_employee_log(employee_id, new_value):
     url = employee_api + '/' + employee_id + '?' + header
@@ -152,10 +152,10 @@ def update_employee_log(employee_id, new_value):
     }
     response = requests.patch(url, headers=headers, json=data)
 
-    if response.status_code in [200, 204]:
-        print('Resource updated successfully')
-    else:
-        print(f'Failed to update resource. Status code: {response.status_code}')
+    # if response.status_code in [200, 204]:
+    #     print('Resource updated successfully')
+    # else:
+    #     print(f'Failed to update resource. Status code: {response.status_code}')
 
 def update_employee_dates_logged(employee_id, new_value):
     url = employee_api + '/' + employee_id + '?' + header
@@ -176,10 +176,10 @@ def update_employee_dates_logged(employee_id, new_value):
     }
     response = requests.patch(url, headers=headers, json=data)
 
-    if response.status_code in [200, 204]:
-        print('Resource updated successfully')
-    else:
-        print(f'Failed to update resource. Status code: {response.status_code}')
+    # if response.status_code in [200, 204]:
+    #     print('Resource updated successfully')
+    # else:
+    #     print(f'Failed to update resource. Status code: {response.status_code}')
 
 def update_employee_hours(employee_id, new_value):
     url = employee_api + '/' + employee_id + '?' + header
@@ -201,10 +201,10 @@ def update_employee_hours(employee_id, new_value):
     }
     response = requests.patch(url, headers=headers, json=data)
 
-    if response.status_code in [200, 204]:
-        print('Resource updated successfully')
-    else:
-        print(f'Failed to update resource. Status code: {response.status_code}')
+    # if response.status_code in [200, 204]:
+    #     print('Resource updated successfully')
+    # else:
+    #     print(f'Failed to update resource. Status code: {response.status_code}')
 # get_employee_by_id('90089770')
 # enter_new_employee("1234", "Filler", "winner")
 # enter_new_employee("admin", "Liam Hamway", "admin")
@@ -212,6 +212,6 @@ def update_employee_hours(employee_id, new_value):
 # delete_employee('admin')
 # delete_employee('90089770')
 # delete_employee('1')
-print(get_employees())
+# print(get_employees())
 # update_employee_password("90089770", "admin")
 # update_employee_role("90089770", "admin")
