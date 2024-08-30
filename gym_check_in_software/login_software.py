@@ -7,26 +7,24 @@ from datetime import datetime
 from functools import partial
 import requests
 from API_test import *
-
+import os
 
 root=tk.Tk()
 
 root.geometry("800x600")
-
 root.title("University of Dallas Gym Employee Software")
-# ud_image = Image.open("/UDallas_seal.png")
-ud_seal = PhotoImage(file = r'CodingPortfolio\gym_check_in_software\UDallas_seal.png')
+ud_seal = PhotoImage(file = r'..\UDallas_seal.png')
 
 listbox_emp = None
 listbox_dates = None
+var_list = []
+check_out= []
 
 employee_api = 'https://api.restpoint.io/api/employee?'
-header = 'x-endpoint-key=133bec7420fc43f38dc315e44a51264f'
+header = 'x-endpoint-key=96d0eaae000a4e36814ae5f807ae5410'
 
 root.iconphoto(False, ud_seal)
 
-# declaring string variable
-# for storing name and password
 id_var=tk.StringVar()
 passw_var=tk.StringVar()
 new_id_var = tk.StringVar()
@@ -39,16 +37,14 @@ checkout_to_do = [
      "At the end of your shift did you dust the treadmills and ellipticals?",
      "At the end of your shift are all the weight plates back on their racks?",
      "At the end of your shift is the front desk area neat and clean?",
-     "Morning shift: did you take the dumbbells off the racks and clean the racks?",
-     "Mid-day shift: did you take the kettlebells off the racks and clean the racks?",
-     "Afternoon shift: did you clean the treads of the treadmills?",
-     "Night shift: did you dust the ellipticals, treadmills, and bicycles, and wipe and vacuum their foot pads?",
-     "Late afternoon shift: did you wipe down all of the weight machines?",
-     "Evening shift: did you mop the floor?",
      ]
-# defining a function that will
-# get the name and password and 
-# print them on the screen
+checkout_morning =["Morning shift: did you take the dumbbells off the racks and clean the racks?",
+     "Morning shift: did you take the kettlebells off the racks and clean the racks?",]
+checkout_afternoon =["Afternoon shift: did you clean the treads of the treadmills?",
+                     "Afternoon shift: did you wipe down all of the weight machines?",]
+checkout_evening = ["Evening shift: did you dust the ellipticals, treadmills, and bicycles, and wipe and vacuum their foot pads?",
+                    "Evening shift: did you mop the floor?",]
+
 def submit(frame):
 
 	name=id_var.get()
@@ -69,7 +65,7 @@ def create_window(user_role, user, frame):
         make_employee_page(frame, user)
 
 def make_admin_page(frame):
-     admin_label = tk.Label(frame, text="Administration Window", font=('calibre', 10, 'bold'))
+     admin_label = tk.Label(frame, text="Administration Window", font=('calibre', 12, 'bold'))
      menubar = tk.Menu(frame, tearoff=0)
      filemenu = tk.Menu(menubar, tearoff=0)
      filemenu.add_command(label="Log Out", command=lambda:logout(frame))
@@ -81,16 +77,22 @@ def make_admin_page(frame):
      remove_employee_button = tk.Button(frame, text="Remove Employee", command= lambda: remove_employee(frame))
      reset_employee_pass = tk.Button(frame, text="Reset Password", command= lambda: reset_passwords(frame))
      time_cards = tk.Button(frame, text="Access Time Cards", command= lambda: time_cards_page(frame))
-     admin_label.pack(pady=10)
-     add_employee_button.pack(pady=10)
-     remove_employee_button.pack(pady=10)
-     reset_employee_pass.pack(pady=10)
-     time_cards.pack(pady=10)
+     admin_label.pack(pady=20)
+     add_employee_button.pack(pady=20)
+     remove_employee_button.pack(pady=20)
+     reset_employee_pass.pack(pady=20)
+     time_cards.pack(pady=20)
 
 def make_employee_page(frame, user):
+        global checkout_to_do
+        global checkout_morning
+        global checkout_afternoon
+        global checkout_evening
+        global var_list
+        global check_out
         employee = get_employee_by_id(user)
         employee_name = employee['name']
-        worker_label = tk.Label(frame, text="Employee Portal", font=('calibre', 10, 'bold'))
+        worker_label = tk.Label(frame, text="Employee Portal", font=('calibre', 12, 'bold'))
         menubar = tk.Menu(frame, tearoff=0)
         filemenu = tk.Menu(menubar, tearoff=0)
         filemenu.add_command(label="Log Out", command=lambda: logout(frame))
@@ -101,10 +103,35 @@ def make_employee_page(frame, user):
         welcome_label = tk.Label(frame, text=f"Welcome to the gym {employee_name}!")
         clock_in_button = tk.Button(frame, text="Clock-In", command = lambda: worker_clock_in(user))
         clock_out_button = tk.Button(frame, text="Clock-Out", command = lambda: worker_clock_out(frame, user))
-        worker_label.pack(pady=10)
-        welcome_label.pack(pady=10)
+        check_out_label = tk.Label(frame, text="Check-Out Shift Check List", font=('calibre', 12, 'bold'))
+        worker_label.pack(pady=20)
+        welcome_label.pack(pady=20)
         clock_in_button.pack(pady=10)
         clock_out_button.pack(pady=10)
+        check_out_label.pack(pady=20)
+        current_time = datetime.now().hour
+        for item in checkout_to_do:
+             check_out.append(item)
+        if current_time >= 8 and current_time <= 12:
+             for item in checkout_morning:
+               check_out.append(item)
+        if current_time >= 12 and current_time <= 17:
+             for item in checkout_afternoon:
+                  check_out.append(item)
+        if current_time >= 17 and current_time <= 22:
+             for item in checkout_evening:
+                  check_out.append(item)
+        for index, task in enumerate(check_out):
+             var_list.append(IntVar(value=0))
+             Checkbutton(frame,variable=var_list[index],
+                text=task).pack(pady=5)
+             
+def check_tasks():
+    global var_list
+    for var in var_list:
+         if var.get() == 0:
+              return False
+    return True
 
 def check_credentials(user, passwrd,frame):
      employees = get_employees()
@@ -141,39 +168,30 @@ def worker_clock_out(frame, user_id):
      employees = get_employees()
      for emp in employees:
           if emp['id'] == user_id:
-               if emp['log_status'] == True:
-                    update_employee_log(emp['id'], False)
-                    date_list = emp['dates_logged']
-                    date_accessed = json.loads(date_list)
-                    latest_date_str = date_accessed.popitem()
-                    latest_date = latest_date_str[0]
-                    latest_date_formatted = datetime.strptime(latest_date, "%Y-%m-%dT%H:%M:%S")
-                    clock_out_date = datetime.now().replace(microsecond=0)
-                    difference = clock_out_date - latest_date_formatted
-                    difference_in_hours = "{:.2f}".format(difference.total_seconds() / 3600.0)
-                    date_accessed[latest_date] = difference_in_hours
-                    push_dates = json.dumps(date_accessed)
-                    update_employee_dates_logged(emp['id'], push_dates)
-                    messagebox.showinfo("Success", "You have clocked out!")
+               if not check_tasks():
+                    messagebox.showerror("Error", "You must complete all assigned tasks before clocking out")
                else:
-                    messagebox.showerror("Error", "You must clock in first!")
-
-def worker_out_checklist(frame, current_time):
-     for widget in frame.winfo_children():
-          widget.destroy()
-
-     check_out_label = tk.Label(frame, text="Check Out Checklist", font=('calibre', 10, 'bold'))
-     dry_mop_q = tk.Label(frame, text="At the beginning of your shift did you dry-mop the entire floor?", font=('calibre', 10, 'bold'))
-     dusting_q = tk.Label(frame, text="At the end of your shift did you dust the treadmills and ellipticals?", font=('calibre',10,'bold'))
-
-     check_out_label.pack(pady=10)
-     dry_mop_q.pack(pady=10)
-     dusting_q.pack(pady=10)
+                    if emp['log_status'] == True:
+                         update_employee_log(emp['id'], False)
+                         date_list = emp['dates_logged']
+                         date_accessed = json.loads(date_list)
+                         latest_date_str = date_accessed.popitem()
+                         latest_date = latest_date_str[0]
+                         latest_date_formatted = datetime.strptime(latest_date, "%Y-%m-%dT%H:%M:%S")
+                         clock_out_date = datetime.now().replace(microsecond=0)
+                         difference = clock_out_date - latest_date_formatted
+                         difference_in_hours = "{:.2f}".format(difference.total_seconds() / 3600.0)
+                         date_accessed[latest_date] = difference_in_hours
+                         push_dates = json.dumps(date_accessed)
+                         update_employee_dates_logged(emp['id'], push_dates)
+                         messagebox.showinfo("Success", "You have clocked out!")
+                    else:
+                         messagebox.showerror("Error", "You must clock in first!")
           
 def add_employee(frame):
      for widget in frame.winfo_children():
           widget.destroy()
-     new_label = tk.Label(frame, text = "Add New Employee", font=('calibre',10,'bold'))
+     new_label = tk.Label(frame, text = "Add New Employee", font=('calibre',12,'bold'))
      menubar = tk.Menu(frame, tearoff=0)
      filemenu = tk.Menu(menubar, tearoff=0)
      filemenu.add_command(label="Return to Admin Home", command= lambda: return_to_admin(frame))
@@ -205,7 +223,7 @@ def add_employee(frame):
 def remove_employee(frame):
      for widget in frame.winfo_children():
           widget.destroy()
-     remove_label = tk.Label(frame, text = "Remove Employee", font=('calibre',10,'bold'))
+     remove_label = tk.Label(frame, text = "Remove Employee", font=('calibre',12,'bold'))
      menubar = tk.Menu(frame, tearoff=0)
      filemenu = tk.Menu(menubar, tearoff=0)
      filemenu.add_command(label="Return to Admin Home", command= lambda: return_to_admin(frame))
@@ -279,6 +297,10 @@ def make_login_page(frame):
      sub_btn.grid(row=2,column=1)
 
 def logout(frame):
+     global check_out
+     global var_list
+     check_out = []
+     var_list = []
      make_login_page(frame)
 
 def time_cards_page(frame):
@@ -286,7 +308,7 @@ def time_cards_page(frame):
      employees = get_employees()
      for widget in frame.winfo_children():
           widget.destroy()
-     time_card_label = tk.Label(frame, text="Time Cards", font=('calibre', 10, 'bold'))
+     time_card_label = tk.Label(frame, text="Time Cards", font=('calibre', 20, 'bold'))
      menubar = tk.Menu(frame, tearoff=0)
      filemenu = tk.Menu(menubar, tearoff=0)
      filemenu.add_command(label="Return to Admin Home", command= lambda: return_to_admin(frame))
@@ -315,7 +337,7 @@ def return_to_admin(frame):
 def reset_passwords(frame):
      for widget in frame.winfo_children():
           widget.destroy()
-     new_label = tk.Label(frame, text = "Reset Employee Password", font=('calibre',10,'bold'))
+     new_label = tk.Label(frame, text = "Reset Employee Password", font=('calibre',20,'bold'))
      menubar = tk.Menu(frame, tearoff=0)
      filemenu = tk.Menu(menubar, tearoff=0)
      filemenu.add_command(label="Return to Admin Home", command= lambda: return_to_admin(frame))
@@ -413,7 +435,9 @@ def delete_employee_date(event, listbox, employee):
                     updated_dates = json.dumps(date_map)
                     update_employee_dates_logged(emp['id'], updated_dates)
           messagebox.showinfo("Successful Removal", "Work Date and Hours Deleted")
-
-make_login_page(root)
-# performing an infinite loop for the window to display
-root.mainloop()
+if(check_license("Roper") is True):
+     make_login_page(root)
+     # performing an infinite loop for the window to display
+     root.mainloop()
+else:
+     messagebox.showerror("License Error", "License not found. Please contact the developer.")

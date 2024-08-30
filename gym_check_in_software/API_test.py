@@ -2,9 +2,11 @@ import requests
 import json
 
 employee_api = 'https://api.restpoint.io/api/employee'
-header = 'x-endpoint-key=c8d271ed7f7544df9b1912a001cfc8b9'
+license_api = 'https://api.restpoint.io/api/License'
+header = 'x-endpoint-key=96d0eaae000a4e36814ae5f807ae5410'
 
 url = employee_api + '?' + header
+l_url = license_api + '?' + header
 
 def get_employees():
     response = requests.get(url)
@@ -14,6 +16,31 @@ def get_employees():
         return employees
     # else:
     #     print('Error: ' + str(response.status_code))
+
+def check_license(name):
+    l_url = license_api + '/' + name + '?' + header
+    response = requests.get(l_url)
+    if response.status_code == 200:
+        data = response.json()
+        status = data.get('license_status')
+        return status
+    
+def change_status(name, new_status):
+    url = license_api + '/' + name + '?' + header
+    headers = {
+    'headerKey': header,
+    'Content-Type': 'application/json'
+    }
+
+    old_data = requests.get(url)
+    user = old_data.json()
+    data = {
+        "id": user['id'],
+        "license_status": new_status
+    }
+    response = requests.patch(url, headers=headers, json=data)
+
+
 
 def get_employee_by_id(employee_id):
     url = employee_api + '/' + employee_id + '?' + header
@@ -205,13 +232,8 @@ def update_employee_hours(employee_id, new_value):
     #     print('Resource updated successfully')
     # else:
     #     print(f'Failed to update resource. Status code: {response.status_code}')
-# get_employee_by_id('90089770')
-# enter_new_employee("1234", "Filler", "winner")
-# enter_new_employee("admin", "Liam Hamway", "admin")
-# enter_new_admin("admin", "Liam Hamway", "admin")
-# delete_employee('admin')
-# delete_employee('90089770')
-# delete_employee('1')
+# enter_new_admin("GAdmin", "Gregory Roper", "admin")
+# enter_new_admin("HamwayAdmin", "Liam Hamway (Admin)", "hamway13")
 # print(get_employees())
-# update_employee_password("90089770", "admin")
 # update_employee_role("90089770", "admin")
+# change_status("Roper", True)
