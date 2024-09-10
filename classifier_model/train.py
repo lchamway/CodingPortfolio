@@ -63,13 +63,13 @@ def evaluate_model(model, dataloader):
     print(f'F1 Score: {f1:.4f}')
 
 def main():
-    file_path = r'C:\Users\Liam\Desktop\Summer Research\Computer-Science-Research-Summer\classifier_model\training_labels.csv'
-    word2vec_path = r'C:\Users\Liam\Desktop\Summer Research\Computer-Science-Research-Summer\classifier_model\word2vec_training.py'
+    file_path = r'C:\Users\Liam\Desktop\Coding Portfolio\CodingPortfolio\classifier_model\training_labels.csv'
+    word2vec_path = r'C:\Users\Liam\Desktop\Coding Portfolio\CodingPortfolio\classifier_model\word2vecProtein.model'
     batch_size = 2
     num_epochs = 100
     learning_rate = 0.001
 
-    word2vec_model = Word2Vec.load(r'C:\Users\Liam\Desktop\Summer Research\Computer-Science-Research-Summer\classifier_model\word2vecProtein.model')
+    word2vec_model = Word2Vec.load(word2vec_path)
     input_dim = word2vec_model.vector_size
     num_classes = 2
 
